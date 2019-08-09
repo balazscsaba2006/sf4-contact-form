@@ -14,3 +14,9 @@ framework:
     #fragments: true
     php_errors:
         log: true
+
+    templating: { engines: ['twig'] }
+
+    serializer:
+        enabled: true
+        enable_annotations: true
