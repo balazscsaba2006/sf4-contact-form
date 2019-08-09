@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+    php:
+        container_name: sf4_contact_form_php
+        build:
+            context: php7-fpm
+            args:
+                TIMEZONE: ${TIMEZONE}
+        volumes:
+            - ${SYMFONY_APP_PATH}:/var/www/symfony
+            - ./logs/symfony:/var/www/symfony/var/log
+
+    nginx:
+        container_name: sf4_contact_form_nginx
+        build:
+            context: nginx
+            args:
+                MAX_EXECUTION_TIME: ${MAX_EXECUTION_TIME}
+                SERVER_NAME: ${SERVER_NAME}
+        ports:
+            - "80:80"
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+
+    db:
+        container_name: sf4_contact_form_db
+        image: mysql:8.0
+        command: ["--default-authentication-plugin=mysql_native_password"]
+        # alternatively run: ALTER USER 'sf4-contact-form'@'%' IDENTIFIED WITH mysql_native_password BY 'sf4-contact-form';
+        volumes:
+            - "./mysql/config:/etc/mysql/conf.d"
+            - "./.data/db:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE_APP}
+            MYSQL_USER: ${MYSQL_USER_APP}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD_APP}
+        ports:
+            - "3306:3306"
