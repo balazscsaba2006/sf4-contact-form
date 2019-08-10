@@ -14,3 +14,8 @@ services:
     # Fixes issue: https://github.com/FriendsOfSymfony/FOSRestBundle/issues/1768
     sensio_framework_extra.view.listener:
         alias: Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener
+
+    App\Controller\Rest\ExceptionController:
+        public: true
+        arguments:
+            - '@fos_rest.exception.codes_map'
