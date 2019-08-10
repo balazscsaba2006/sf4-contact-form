@@ -35,6 +35,8 @@ class UploadController extends AbstractController
             // todo: read and persist the CSV file entries
             // todo: add flash message with results (num succeeded / num failed / total rows)
 
+            $this->addFlash('success', 'Nice job! The uploaded file was successfully saved.');
+
             return $this->redirect($this->generateUrl('upload'));
         }
 

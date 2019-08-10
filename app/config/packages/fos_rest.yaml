@@ -21,6 +21,3 @@ fos_rest:
             json: true
     serializer:
         groups: ['Default']
-    exception:
-        enabled: true
-        exception_controller: 'App\Controller\Rest\ExceptionController::showAction'

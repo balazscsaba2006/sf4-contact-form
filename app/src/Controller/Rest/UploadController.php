@@ -20,21 +20,20 @@ class UploadController extends AbstractFOSRestController
      *
      * @param Request $request
      *
-     * @return View
+     * @return Response
      */
-    public function postUpload(Request $request): View
+    public function postUpload(Request $request): Response
     {
         $form = $this->createForm(UploadType::class);
-        $data = json_decode($request->getContent(), true);
-        $form->submit($data);
+        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            // todo: read and persist the CSV file entries
-            // todo: add flash message with results (num succeeded / num failed / total rows)
-
-            return View::create(['status' => 'ok'], Response::HTTP_CREATED);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            return $this->handleView(View::create($form));
         }
 
-        return View::create($form->getErrors());
+        // todo: read and persist the CSV file entries
+        // todo: add flash message with results (num succeeded / num failed / total rows)
+
+        return $this->handleView(View::create(['status' => 'ok'], Response::HTTP_CREATED));
     }
 }
