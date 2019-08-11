@@ -30,6 +30,10 @@ jobs:
                   paths:
                       - ./vendor
 
+            # install database
+            - run: mysql -h localhost -u root -proot -e "CREATE DATABASE test;"
+
+
             # prepare the database
             - run:
                   working_directory: ~/project/app
