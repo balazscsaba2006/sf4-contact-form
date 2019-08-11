@@ -7,9 +7,13 @@ services:
             context: php7-fpm
             args:
                 TIMEZONE: ${TIMEZONE}
+                HOST_IP: ${HOST_IP}
         volumes:
             - ${SYMFONY_APP_PATH}:/var/www/symfony
             - ./logs/symfony:/var/www/symfony/var/log
+        environment:
+            XDEBUG_CONFIG: "remote_host=${HOST_IP} xdebug.remote_enable=1 remote_mode=req remote_port=9001 remote_connect_back=0"
+            PHP_IDE_CONFIG: "serverName=${SERVER_NAME}"
 
     nginx:
         container_name: sf4_contact_form_nginx

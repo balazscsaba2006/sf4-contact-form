@@ -3,6 +3,7 @@
 namespace App\Tests\Controller\Rest;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 /**
@@ -29,14 +30,36 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests POST request on the /api/upload URI
+     * Tests POST request with empty file on the /api/upload URI
      */
-    public function testPostUploadFile()
+    public function testPostEmptyFile()
     {
         $client = static::createClient();
 
         $client->request('POST', '/api/upload');
 
+        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+    }
+
+    /**
+     * Tests POST request on the /api/upload URI
+     */
+    public function testPostUploadedFile()
+    {
+        $client = static::createClient();
+        $file = new UploadedFile(
+            __DIR__ .'/../../data/correct.csv',
+            'correct.csv',
+            'text/plain',
+            null,
+            true
+        );
+        $client->request(
+            'POST',
+            '/api/upload',
+            [],
+            ['upload' => ['file' => $file]]
+        );
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
     }
 

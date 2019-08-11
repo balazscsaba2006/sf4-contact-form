@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class UploadType
@@ -28,6 +29,7 @@ class UploadType extends AbstractType
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
+                    new NotBlank(),
                     new File([
                         'maxSize' => '1024k',
                         'mimeTypes' => [
