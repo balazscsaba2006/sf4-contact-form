@@ -1,0 +1,39 @@
+# PHP CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-php/ for more details
+#
+version: 2.1
+orbs:
+    codecov: codecov/codecov@1.0.2
+jobs:
+    build:
+        docker:
+            - image: balazscsaba2006/hdapi-ci
+        working_directory: ~/app
+        steps:
+            - checkout
+
+            # Download and cache dependencies
+            - restore_cache:
+                  keys:
+                      # "composer.lock" can be used if it is committed to the repo
+                      - v1-dependencies-{{ checksum "composer.json" }}
+                      # fallback to using the latest cache if no exact match is found
+                      - v1-dependencies-
+
+            - run: composer install --no-interaction --no-progress --prefer-dist
+
+            - save_cache:
+                  key: v1-dependencies-{{ checksum "composer.json" }}
+                  paths:
+                      - ./vendor
+
+            # prepare the database
+            - run: php bin/console doctrine:migrations:migrate -n --env=test
+
+            # run tests with phpunit
+            - run: ./vendor/bin/phpunit -v --configuration phpunit.xml.dist --coverage-clover=coverage.xml --coverage-text --colors=never --stderr
+
+            - codecov/upload:
+                  file: coverage.xml
+                  token: 95e332a7-56c8-46dc-8804-510a2d3c6aab
