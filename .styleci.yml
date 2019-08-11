@@ -1,0 +1,14 @@
+preset: recommended
+
+enabled:
+    - concat_with_spaces
+    - yoda_style
+
+disabled:
+    - align_double_arrow
+    - concat_without_spaces
+    - trailing_comma_in_multiline_array
+
+finder:
+    path:
+        - "app/src"
