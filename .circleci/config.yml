@@ -9,9 +9,31 @@ jobs:
     build:
         docker:
             - image: balazscsaba2006/hdapi-ci
+            - image: circleci/mysql:8.0.4
+                  environment:
+                      MYSQL_ROOT_PASSWORD: root
+                      MYSQL_DATABASE: test
+                      MYSQL_USER: root
+                      MYSQL_PASSWORD: root
+
         working_directory: ~/project
+
         steps:
             - checkout
+            -   run:
+                    # Our primary container isn't MYSQL so run a sleep command until it's ready.
+                    name: Waiting for MySQL to be ready
+                    command: |
+                        for i in `seq 1 10`;
+                        do
+                          nc -z 127.0.0.1 3306 && echo Success && exit 0
+                          echo -n .
+                          sleep 1
+                        done
+                        echo Failed waiting for MySQL && exit 1
+            -   run:
+                    name: Install MySQL CLI
+                    command: sudo apt-get install default-mysql-client
 
             # Download and cache dependencies
             - restore_cache:
@@ -44,6 +66,7 @@ jobs:
                   working_directory: ~/project/app
                   command: ./vendor/bin/phpunit -v --configuration phpunit.xml.dist --coverage-clover=coverage.xml --coverage-text --colors=never --stderr
 
+            # upload coverage report to Codecov
             - codecov/upload:
                   file: coverage.xml
                   token: 95e332a7-56c8-46dc-8804-510a2d3c6aab
