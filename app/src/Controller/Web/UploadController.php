@@ -12,7 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class UploadController
- * @package App\Controller\Web
  */
 class UploadController extends AbstractController
 {

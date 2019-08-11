@@ -9,7 +9,7 @@ jobs:
     build:
         docker:
             - image: balazscsaba2006/hdapi-ci
-        working_directory: ~/app
+        working_directory: ~/project
         steps:
             - checkout
 
@@ -21,7 +21,9 @@ jobs:
                       # fallback to using the latest cache if no exact match is found
                       - v1-dependencies-
 
-            - run: composer install --no-interaction --no-progress --prefer-dist
+            - run:
+                  working_directory: ~/app
+                  command: composer install --no-interaction --no-progress --prefer-dist
 
             - save_cache:
                   key: v1-dependencies-{{ checksum "composer.json" }}
@@ -29,10 +31,14 @@ jobs:
                       - ./vendor
 
             # prepare the database
-            - run: php bin/console doctrine:migrations:migrate -n --env=test
+            - run:
+                  working_directory: ~/app
+                  command: php bin/console doctrine:migrations:migrate -n --env=test
 
             # run tests with phpunit
-            - run: ./vendor/bin/phpunit -v --configuration phpunit.xml.dist --coverage-clover=coverage.xml --coverage-text --colors=never --stderr
+            - run:
+                  working_directory: ~/app
+                  command: ./vendor/bin/phpunit -v --configuration phpunit.xml.dist --coverage-clover=coverage.xml --coverage-text --colors=never --stderr
 
             - codecov/upload:
                   file: coverage.xml

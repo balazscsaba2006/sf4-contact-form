@@ -12,3 +12,8 @@ disabled:
 finder:
     path:
         - "app/src"
+    exclude:
+        - "app/tests"
+        - "app/src/Migrations"
+    not-path:
+        - "app/src/Kernel.php"

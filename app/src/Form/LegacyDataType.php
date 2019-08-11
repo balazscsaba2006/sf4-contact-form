@@ -9,21 +9,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class LegacyDataType
- *
- * @package App\Form
  */
 class LegacyDataType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('email')
-            ->add('message')
-        ;
+            ->add('message');
     }
 
     /**

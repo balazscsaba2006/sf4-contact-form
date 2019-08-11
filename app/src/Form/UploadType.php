@@ -12,14 +12,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class UploadType
- *
- * @package App\Form
  */
 class UploadType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -45,8 +43,7 @@ class UploadType extends AbstractType
                     ])
                 ],
             ])
-            ->add('upload',SubmitType::class)
-        ;
+            ->add('upload',SubmitType::class);
     }
 
     /**

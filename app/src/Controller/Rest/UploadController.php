@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class UploadController
- * @package App\Controller\Rest
  */
 class UploadController extends AbstractFOSRestController
 {
