@@ -14,7 +14,7 @@ jobs:
 
         steps:
             - checkout
-
+            # Install MySQL CLI and start service
             - run:
                   name: Install MySQL CLI
                   command: |
@@ -30,30 +30,35 @@ jobs:
                       # fallback to using the latest cache if no exact match is found
                       - v1-dependencies-
 
+            # Set env vars
+            - run: export SYMFONY_ENV=test
+
             - run:
                   working_directory: ~/project/app
-                  command: composer install --no-interaction --no-progress --prefer-dist
+                  command: SYMFONY_ENV=test composer install --no-interaction --no-progress --prefer-dist
 
             - save_cache:
                   key: v1-dependencies-{{ checksum "app/composer.json" }}
                   paths:
                       - ./vendor
 
-            # install database
+            # Install database
             - run: mysql -h localhost -u root -proot -e "CREATE DATABASE test;"
 
-
-            # prepare the database
+            # Prepare the database
             - run:
+                  name: "Wait for DB and initialize DB"
                   working_directory: ~/project/app
-                  command: php bin/console doctrine:migrations:migrate -n --env=test
+                  command: |
+                      php bin/console db:wait --env=test
+                      php bin/console doctrine:migrations:migrate -n --env=test
 
-            # run tests with phpunit
+            # Run tests with phpunit
             - run:
                   working_directory: ~/project/app
                   command: ./vendor/bin/phpunit -v --configuration phpunit.xml.dist --coverage-clover=coverage.xml --coverage-text --colors=never --stderr
 
-            # upload coverage report to Codecov
+            # Upload coverage report to Codecov
             - codecov/upload:
                   file: coverage.xml
                   token: 95e332a7-56c8-46dc-8804-510a2d3c6aab
