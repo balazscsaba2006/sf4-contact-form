@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class UploadController
+ * Class UploadController.
  */
 class UploadController extends AbstractFOSRestController
 {

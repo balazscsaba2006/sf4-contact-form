@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * Class UploadType
+ * Class UploadType.
  */
 class UploadType extends AbstractType
 {
@@ -43,7 +43,7 @@ class UploadType extends AbstractType
                     ])
                 ],
             ])
-            ->add('upload',SubmitType::class);
+            ->add('upload', SubmitType::class);
     }
 
     /**

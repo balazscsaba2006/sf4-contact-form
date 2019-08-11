@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class UploadController
+ * Class UploadController.
  */
 class UploadController extends AbstractController
 {
