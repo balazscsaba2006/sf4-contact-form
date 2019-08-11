@@ -17,7 +17,9 @@ jobs:
 
             - run:
                   name: Install MySQL CLI
-                  command: sudo apt install -y -q mysql-client
+                  command: |
+                      sudo apt-get update
+                      sudo apt install -y -q mysql-client
 
             # Download and cache dependencies
             - restore_cache:
