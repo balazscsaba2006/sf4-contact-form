@@ -1,5 +1,5 @@
 filter:
-    excluded_paths: [.circleci/*, .docker/*, app/tests/*]
+    excluded_paths: [.circleci/*, .docker/*, app/tests/*, app/vendor/*]
 
 checks:
     php:
