@@ -10,11 +10,11 @@ jobs:
         docker:
             - image: balazscsaba2006/hdapi-ci
             - image: circleci/mysql:8.0.4
-                  environment:
-                      MYSQL_ROOT_PASSWORD: root
-                      MYSQL_DATABASE: test
-                      MYSQL_USER: root
-                      MYSQL_PASSWORD: root
+              environment:
+                MYSQL_ROOT_PASSWORD: root
+                MYSQL_DATABASE: test
+                MYSQL_USER: root
+                MYSQL_PASSWORD: root
 
         working_directory: ~/project
 
