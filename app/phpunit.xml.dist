@@ -11,7 +11,7 @@
         <ini name="error_reporting" value="-1" />
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
-        <env name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/test_data.db"/>
+        <env name="DATABASE_URL" value="sqlite:///./var/test_data.db"/>
     </php>
 
     <testsuites>
