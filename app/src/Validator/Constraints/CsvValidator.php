@@ -2,7 +2,9 @@
 
 namespace App\Validator\Constraints;
 
-use App\Serializer\CsvSerializer;
+use League\Csv\Exception as CsvException;
+use League\Csv\Reader;
+use League\Csv\Statement;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -15,23 +17,10 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 class CsvValidator extends ConstraintValidator
 {
     /**
-     * @var CsvSerializer
-     */
-    private $serializer;
-
-    /**
-     * CsvValidator constructor.
-     *
-     * @param CsvSerializer $serializer
-     */
-    public function __construct(CsvSerializer $serializer)
-    {
-        $this->serializer = $serializer;
-    }
-
-    /**
-     * @param mixed $value
+     * @param mixed      $value
      * @param Constraint $constraint
+     *
+     * @throws CsvException
      */
     public function validate($value, Constraint $constraint): void
     {
@@ -49,18 +38,62 @@ class CsvValidator extends ConstraintValidator
             throw new UnexpectedValueException($value, UploadedFile::class);
         }
 
-        $content = file_get_contents($value->getPathname());
-        $decoded = $this->serializer->decode($content, 'csv');
+        $csv = Reader::createFromPath($value->getPathname(), 'r');
+        $csv->setDelimiter($constraint->delimiter);
 
-        $columnsFound = \count($decoded[0] ?? []);
+        if (true === $constraint->firstLineAsHeader) {
+            $csv->setHeaderOffset(0);
+        }
+
+        $firstLine = $this->getCsvFirstLine($constraint, $csv);
+        $columnsFound = \count($firstLine);
 
         if ($constraint->columnsCount !== $columnsFound) {
-            $this->context->buildViolation($constraint->invalidColumnsCount)
+            $this->context->buildViolation($constraint->invalidColumnsCountMessage)
                 ->setParameter('{{ columns }}', $constraint->columnsCount)
                 ->setParameter('{{ columns_found }}', $columnsFound)
                 ->setPlural((int) $constraint->columnsCount)
                 ->setCode(Csv::COLUMNS_COUNT_ERROR)
                 ->addViolation();
         }
+
+        $firstRecord = $this->getCsvFirstRecord($csv);
+        if (empty($firstRecord)) {
+            $this->context->buildViolation($constraint->noRecordsMessage)
+                ->setCode(Csv::NO_RECORDS_ERROR)
+                ->addViolation();
+        }
+    }
+
+    /**
+     * @param Csv    $constraint
+     * @param Reader $csv
+     *
+     * @return array|mixed|string[]
+     */
+    private function getCsvFirstLine(Csv $constraint, Reader $csv)
+    {
+        if (true === $constraint->firstLineAsHeader) {
+            return $csv->getHeader();
+        }
+
+        return $this->getCsvFirstRecord($csv);
+    }
+
+    /**
+     * @param Csv    $constraint
+     * @param Reader $csv
+     *
+     * @return array|mixed|string[]
+     */
+    private function getCsvFirstRecord(Reader $csv)
+    {
+        $stmt = (new Statement())
+            ->offset(0)
+            ->limit(1);
+
+        $result = $stmt->process($csv);
+
+        return $result->fetchOne(0);
     }
 }

@@ -37,14 +37,31 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
+     * Tests submitting the upload form with an empty CSV.
+     */
+    public function testSubmitUploadFormWithEmptyCsv(): void
+    {
+        [$client, $crawler] = $this->prepareTest('empty_content.csv');
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(1, $crawler->filter('.form-error-message')->count());
+        self::assertSelectorTextContains(
+            '.form-error-message',
+            'File contains no records.'
+        );
+    }
+
+    /**
      * Tests submitting the upload form with too large CSV.
      */
     public function testSubmitUploadFormWithTooLargeCsv(): void
     {
         [$client, $crawler] = $this->prepareTest('too_large.csv');
 
+        $a = $crawler->html();
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertEquals(1, $crawler->filter('.form-error-message')->count());
+
         self::assertSelectorTextContains(
             '.form-error-message',
             'The file is too large (1066.34 kB). Allowed maximum size is 1024 kB.'

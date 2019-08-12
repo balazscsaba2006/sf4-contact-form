@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\GroupSequence;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -28,8 +29,9 @@ class UploadType extends AbstractType
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(),
+                    new NotBlank(['groups' => 'Default']),
                     new File([
+                        'groups' => 'Default',
                         'maxSize' => '1024k',
                         'mimeTypes' => [
                             'text/plain', // because finfo mimetype guesser could fail, rely on validator instead
@@ -42,7 +44,12 @@ class UploadType extends AbstractType
                         ],
                         'mimeTypesMessage' => 'The mime type of the file is invalid ({{ type }}). Allowed mime types are: {{ types }}',
                     ]),
-                    new Csv(['columnsCount' => 2]),
+                    new Csv([
+                        'groups' => 'Strict',
+                        'columnsCount' => 2,
+                        'firstLineAsHeader' => true,
+                        'delimiter' => ';',
+                    ]),
                 ],
             ])
             ->add('upload', SubmitType::class);
@@ -56,6 +63,7 @@ class UploadType extends AbstractType
         $resolver->setDefaults([
             'data_class' => null,
             'csrf_protection' => false,
+            'validation_groups' => new GroupSequence(['Default', 'Strict']),
         ]);
     }
 }

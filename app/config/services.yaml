@@ -14,12 +14,3 @@ services:
     # Fixes issue: https://github.com/FriendsOfSymfony/FOSRestBundle/issues/1768
     sensio_framework_extra.view.listener:
         alias: Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener
-
-    App\Serializer\CsvSerializer:
-        factory: 'App\Serializer\SerializerFactory:createCsvSerializer'
-
-    App\Validator\Constraints\CsvValidator:
-        arguments:
-            - '@App\Serializer\CsvSerializer'
-        tags:
-            - { name: validator.constraint_validator }

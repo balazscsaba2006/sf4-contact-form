@@ -45,9 +45,9 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests POST request with empty file on the /api/upload URI.
+     * Tests POST request with no file on the /api/upload URI.
      */
-    public function testPostEmptyFile(): void
+    public function testPostWithNoFile(): void
     {
         $client = static::createClient();
         $client->request('POST', '/api/upload');
@@ -56,9 +56,25 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
+     * Tests submitting the upload form with an empty CSV.
+     */
+    public function testPostWithEmptyCsv(): void
+    {
+        $client = $this->prepareTest('empty_content.csv');
+        $content = json_decode($client->getResponse()->getContent(), false);
+
+        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertEquals('Validation Failed', $content->message);
+        $this->assertEquals(
+            'File contains no records.',
+            $content->errors->children->file->errors[0]
+        );
+    }
+
+    /**
      * Tests submitting the upload form with too large CSV.
      */
-    public function testSubmitUploadFormWithTooLargeCsv(): void
+    public function testPostWithTooLargeCsv(): void
     {
         $client = $this->prepareTest('too_large.csv');
         $content = json_decode($client->getResponse()->getContent(), false);
@@ -74,7 +90,7 @@ class UploadControllerTest extends WebTestCase
     /**
      * Tests submitting the upload form with incorrect CSV.
      */
-    public function testSubmitUploadFormWithIncorrectCsv(): void
+    public function testPostWithIncorrectCsv(): void
     {
         $this->markTestSkipped('must be revisited.');
 
@@ -89,7 +105,7 @@ class UploadControllerTest extends WebTestCase
     /**
      * Tests submitting the upload form with wrong file type.
      */
-    public function testSubmitUploadFormWithWrongFileType(): void
+    public function testPostWithWrongFileType(): void
     {
         $client = $this->prepareTest('test.pdf');
         $content = json_decode($client->getResponse()->getContent(), false);
