@@ -52,8 +52,11 @@ jobs:
                       - ./vendor
 
             - run:
-                  name: "Wait for database to start"
-                  command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+                  name: "Wait for database to start and create test user"
+                  command: |
+                      dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+                      mysql -h localhost -u root -proot -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';GRANT ALL PRIVILEGES ON *.* TO 'test'@'localhost';FLUSH PRIVILEGES;"
+                      service mysql restart
 
             - run:
                   name: "Install and prepare database"
