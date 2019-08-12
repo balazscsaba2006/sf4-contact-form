@@ -49,21 +49,48 @@ class Csv extends Constraint
             $options['delimiter'] = self::DEFAULT_DELIMITER;
         }
 
-        if (null === $this->columnsCount) {
-            throw new MissingOptionsException(sprintf(
-                'Option "columnsCount" must be given for constraint %s',
-                __CLASS__
-            ), ['columnsCount']);
-        }
+        $this->assertColumnsCountValidity();
+        $this->assertFirstLineAsHeaderValidity();
+        $this->assertDelimiterValidity();
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getRequiredOptions(): array
+    {
+        return [
+            'columnsCount'
+        ];
+    }
+
+    /**
+     * Checks "columnsCount" option validity
+     */
+    private function assertColumnsCountValidity(): void
+    {
         if (!is_int($this->columnsCount)) {
             throw new InvalidOptionsException(sprintf(
-                'Option "columnsCount" must be of type "string" for constraint %s, "%s" given.',
+                'Option "columnsCount" must be of type "integer" for constraint %s, "%s" given.',
                 __CLASS__,
                 \gettype($this->columnsCount)
             ), ['columnsCount']);
         }
 
+        if ($this->columnsCount < 1) {
+            throw new InvalidOptionsException(sprintf(
+                'Option "columnsCount" must be greater than 1 for constraint %s, %d given.',
+                __CLASS__,
+                $this->columnsCount
+            ), ['columnsCount']);
+        }
+    }
+
+    /**
+     * Checks "firstLineAsHeader" option validity
+     */
+    private function assertFirstLineAsHeaderValidity(): void
+    {
         if (!is_bool($this->firstLineAsHeader)) {
             throw new InvalidOptionsException(sprintf(
                 'Option "firstLineAsHeader" must be of type "boolean" for constraint %s, "%s" given.',
@@ -71,7 +98,13 @@ class Csv extends Constraint
                 \gettype($this->firstLineAsHeader)
             ), ['firstLineAsHeader']);
         }
+    }
 
+    /**
+     * Checks "delimiter" option validity
+     */
+    private function assertDelimiterValidity(): void
+    {
         if (1 !== strlen($this->delimiter)) {
             throw new InvalidOptionsException(sprintf(
                 'Option "delimiter" for constraint %s is expected to be a single character, %s given.',
