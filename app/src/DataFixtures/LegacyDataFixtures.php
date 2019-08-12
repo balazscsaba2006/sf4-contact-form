@@ -16,7 +16,7 @@ class LegacyDataFixtures extends Fixture
      */
     public function load(ObjectManager $manager): void
     {
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $data = new LegacyData();
             $data->setEmail(sprintf('email%d@fixture.com', $i));
             $data->setMessage(sprintf('Message %d', $i));
