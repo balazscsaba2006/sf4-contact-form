@@ -5,6 +5,8 @@
         "php": "^7.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-json": "*",
+        "friendsofphp/php-cs-fixer": "^2.15",
         "friendsofsymfony/rest-bundle": "^2.5",
         "sensio/framework-extra-bundle": "^5.4",
         "symfony/console": "4.3.*",
@@ -22,6 +24,7 @@
         "symfony/browser-kit": "4.3.*",
         "symfony/css-selector": "4.3.*",
         "symfony/maker-bundle": "^1.12",
+        "symfony/phpunit-bridge": "dev-master",
         "symfony/profiler-pack": "^1.0"
     },
     "config": {

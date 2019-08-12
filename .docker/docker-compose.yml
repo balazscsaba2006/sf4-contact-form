@@ -23,7 +23,7 @@ services:
                 MAX_EXECUTION_TIME: ${MAX_EXECUTION_TIME}
                 SERVER_NAME: ${SERVER_NAME}
         ports:
-            - "80:80"
+            - "8888:80"
         volumes_from:
             - php
         volumes:

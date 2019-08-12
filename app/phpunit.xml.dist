@@ -21,12 +21,15 @@
 
     <filter>
         <whitelist>
-            <directory suffix=".php">./src</directory>
+            <directory>src</directory>
             <exclude>
-                <directory>./src/*Bundle/Resources</directory>
-                <directory>./src/*/*Bundle/Resources</directory>
-                <directory>./src/*/Bundle/*Bundle/Resources</directory>
+                <directory suffix=".php">src/Migrations/</directory>
+                <file>src/Kernel.php</file>
             </exclude>
         </whitelist>
     </filter>
+
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+    </listeners>
 </phpunit>

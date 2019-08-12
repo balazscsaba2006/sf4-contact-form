@@ -19,12 +19,10 @@ RUN docker-php-ext-install pdo pdo_mysql bcmath zip
 RUN pecl install xdebug-2.6.0
 
 # Add custom config
-RUN echo "error_reporting = E_ALL" >> $PHP_INI_DIR/php.ini
-RUN echo "display_startup_errors = On" >> $PHP_INI_DIR/php.ini
-RUN echo "display_errors = On" >> $PHP_INI_DIR/php.ini
-RUN echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so" >> $PHP_INI_DIR/php.ini
+COPY config/custom.ini $PHP_INI_DIR/conf.d/zzz_custom.ini
 
 # Copy xdebug config
+RUN echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so" >> $PHP_INI_DIR/php.ini
 COPY config/xdebug.ini $PHP_INI_DIR/conf.d/zzz_xdebug.ini
 RUN printf '\nxdebug.remote_host="%s"\n', ${HOST_IP} >> $PHP_INI_DIR/conf.d/zzz_xdebug.ini
 RUN cat $PHP_INI_DIR/conf.d/zzz_xdebug.ini

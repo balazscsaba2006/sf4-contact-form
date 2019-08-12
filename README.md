@@ -23,4 +23,4 @@ cd ./docker && docker-compose up --build
 
 ## Usage
 
-Visit [http://sf4-contact-form.local](http://sf4-contact-form.local)
+Visit [http://sf4-contact-form.local:8888](http://sf4-contact-form.local:8888)

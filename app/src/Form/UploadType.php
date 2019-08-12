@@ -31,7 +31,7 @@ class UploadType extends AbstractType
                     new File([
                         'maxSize' => '1024k',
                         'mimeTypes' => [
-                            'text/plain', // because finfo mimetype guesser could fail, reply on validator instead
+                            'text/plain', // because finfo mimetype guesser could fail, rely on validator instead
                             'text/csv', // officially registered type
                             'application/csv',
                             'text/x-csv',
@@ -40,7 +40,7 @@ class UploadType extends AbstractType
                             'text/comma-separated-values',
                         ],
                         'mimeTypesMessage' => 'The mime type of the file is invalid ({{ type }}). Allowed mime types are: {{ types }}',
-                    ])
+                    ]),
                 ],
             ])
             ->add('upload', SubmitType::class);
