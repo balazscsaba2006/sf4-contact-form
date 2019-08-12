@@ -3,6 +3,7 @@ preset: recommended
 enabled:
     - concat_with_spaces
     - yoda_style
+    - pre_increment
 
 disabled:
     - align_double_arrow
