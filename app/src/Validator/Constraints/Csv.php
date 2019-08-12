@@ -43,11 +43,11 @@ class Csv extends Constraint
      */
     public function __construct($options = null)
     {
-        parent::__construct($options);
-
         if (array_key_exists('delimiter', $options) && null === $options['delimiter']) {
             $options['delimiter'] = self::DEFAULT_DELIMITER;
         }
+
+        parent::__construct($options);
 
         $this->assertColumnsCountValidity();
         $this->assertFirstLineAsHeaderValidity();

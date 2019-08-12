@@ -44,6 +44,15 @@ class CsvTest extends TestCase
         $this->assertSame(2, $csv->columnsCount);
     }
 
+    public function testEmptyDelimiter(): void
+    {
+        $csv = new Csv([
+            'columnsCount' => 2,
+            'delimiter' => null,
+        ]);
+        $this->assertSame(';', $csv->delimiter);
+    }
+
     /**
      * @dataProvider provideInvalidColumnsCount
      *
