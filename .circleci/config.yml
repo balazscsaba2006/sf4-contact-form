@@ -22,6 +22,14 @@ jobs:
                       sudo apt install -y -q mysql-client
                       service mysql start
 
+            - run:
+                  name: Install dockerize
+                  working_directory: ~/tmp
+                  command: |
+                      wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
+                      tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
+                      rm dockerize-linux-amd64-v0.6.1.tar.gz
+
             # Download and cache dependencies
             - restore_cache:
                   keys:
