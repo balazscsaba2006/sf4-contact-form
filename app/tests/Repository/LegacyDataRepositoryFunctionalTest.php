@@ -7,6 +7,7 @@ use App\Entity\LegacyData;
 use App\Repository\LegacyDataRepository;
 use App\Tests\FixtureAwareTestCase;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\SchemaTool;
 
 /**
  * Class LegacyDataRepositoryFunctionalTest.
@@ -30,10 +31,10 @@ class LegacyDataRepositoryFunctionalTest extends FixtureAwareTestCase
     {
         parent::setUp();
 
-        $kernel = static::bootKernel();
-
-        $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
+        $this->entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
         $this->legacyDataRepository = $this->entityManager->getRepository(LegacyData::class);
+
+        $this->updateSchema($this->entityManager);
 
         $this->addFixture(new LegacyDataFixtures());
         $this->executeFixtures();
@@ -44,7 +45,11 @@ class LegacyDataRepositoryFunctionalTest extends FixtureAwareTestCase
         $results = $this->legacyDataRepository->findAll();
         $this->assertCount(5, $results);
 
-        $this->assertEquals('email5@fixture.com', $results[4]->getEmail());
+        /** @var LegacyData $fifth */
+        $fifth = $results[4];
+        $this->assertEquals(5, $fifth->getId());
+        $this->assertEquals('email5@fixture.com', $fifth->getEmail());
+        $this->assertEquals('Message 5', $fifth->getMessage());
     }
 
     /**
@@ -54,6 +59,7 @@ class LegacyDataRepositoryFunctionalTest extends FixtureAwareTestCase
     {
         parent::tearDown();
 
+        $this->dropDatabase($this->entityManager);
         $this->entityManager->close();
         $this->entityManager = null; // avoid memory leaks
     }

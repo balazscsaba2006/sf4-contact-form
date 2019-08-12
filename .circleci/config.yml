@@ -13,21 +13,6 @@ jobs:
         steps:
             - checkout
 
-            - run:
-                  name: "Install MySQL CLI"
-                  command: |
-                      sudo apt-get update
-                      sudo apt install -y -q mysql-client
-                      service mysql start
-
-            - run:
-                  name: "Install dockerize"
-                  working_directory: ~/tmp
-                  command: |
-                      wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
-                      tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
-                      rm dockerize-linux-amd64-v0.6.1.tar.gz
-
             # Download and cache dependencies
             - restore_cache:
                   keys:
@@ -54,33 +39,25 @@ jobs:
                       - ./vendor
 
             - run:
-                  name: "Wait for database to start and create test user"
-                  command: |
-                      dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
-                      mysql -h localhost -u root -proot -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';GRANT ALL PRIVILEGES ON *.* TO 'test'@'localhost';FLUSH PRIVILEGES;"
-                      service mysql restart
-
-            - run:
                   name: "Install and prepare database"
                   working_directory: ~/project/app
                   command: |
                       bin/console doctrine:database:create -n --env=test
-                      bin/console doctrine:migrations:migrate -n --env=test
+                      bin/console doctrine:schema:create -n --env=test
 
-            # To use server:start we need to install pcntl extension
+            # Run tests
             - run:
-                  name: "Run web server in background"
+                  name: "Run linters and code style checker"
                   working_directory: ~/project/app
-                  command: bin/console server:run
-                  background: true
+                  command: |
+                      bin/console lint:yaml config
+                      bin/console lint:twig templates
+                      vendor/bin/php-cs-fixer fix src --diff || (echo "Coding standards are not respected. Run 'vendor/bin/php-cs-fixer fix'" && exit 1);
 
             # Run tests
             - run:
                   name: "Run tests"
                   working_directory: ~/project/app
                   command: |
-                      bin/console lint:yaml config
-                      bin/console lint:twig templates
-                      vendor/bin/php-cs-fixer fix src --diff || (echo "Coding standards are not respected. Run 'vendor/bin/php-cs-fixer fix'" && exit 1);
                       php bin/phpunit -v --configuration phpunit.xml.dist --coverage-clover=coverage.xml --coverage-text --colors=never --stderr
                       if [ $? -eq 0 ]; then bash <(curl -s https://codecov.io/bash); fi

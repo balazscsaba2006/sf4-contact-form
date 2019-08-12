@@ -5,5 +5,5 @@ doctrine:
     dbal:
         driver: 'pdo_sqlite'
         url: '%env(DATABASE_URL)%'
-        memory: true
+        memory: false
         charset: utf8mb4
