@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace App\Tests;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * Trait WebTestCaseControllerTrait.
+ * Trait WebTestCaseUtilsTrait.
  */
-trait WebTestCaseControllerTrait
+trait WebTestCaseUtilsTrait
 {
     /**
      * @param string $name
@@ -17,7 +17,7 @@ trait WebTestCaseControllerTrait
     public function getUploadedFile(string $name): UploadedFile
     {
         return new UploadedFile(
-            __DIR__ .'/../data/' . $name,
+            __DIR__.'/.data/'.$name,
             $name,
             'text/plain',
             null,

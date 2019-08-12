@@ -2,19 +2,18 @@
 
 namespace App\Tests\Controller\Web;
 
-use App\Tests\Controller\WebTestCaseControllerTrait;
+use App\Tests\WebTestCaseUtilsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * Class UploadControllerTest
- * @package App\Tests\Controller
+ * Class UploadControllerTest.
  */
 class UploadControllerTest extends WebTestCase
 {
-    use WebTestCaseControllerTrait;
+    use WebTestCaseUtilsTrait;
 
     /**
-     * Tests GET request on the /upload URI
+     * Tests GET request on the /upload URI.
      */
     public function testGetUploadPage(): void
     {
@@ -26,7 +25,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests successfully submitting the upload form
+     * Tests successfully submitting the upload form.
      */
     public function testSubmitUploadFormSuccessfully(): void
     {
@@ -38,7 +37,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests submitting the upload form with too large CSV
+     * Tests submitting the upload form with too large CSV.
      */
     public function testSubmitUploadFormWithTooLargeCsv(): void
     {
@@ -53,7 +52,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests submitting the upload form with incorrect CSV
+     * Tests submitting the upload form with incorrect CSV.
      */
     public function testSubmitUploadFormWithIncorrectCsv(): void
     {
@@ -70,7 +69,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests submitting the upload form with wrong file type
+     * Tests submitting the upload form with wrong file type.
      */
     public function testSubmitUploadFormWithWrongFileType(): void
     {
@@ -85,9 +84,9 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * @param string $name Name of the uploaded file.
+     * @param string $name name of the uploaded file
      *
-     * @return array Client and Crawler objects.
+     * @return array client and Crawler objects
      */
     private function prepareTest(string $name): array
     {

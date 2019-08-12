@@ -2,21 +2,20 @@
 
 namespace App\Tests\Controller\Rest;
 
-use App\Tests\Controller\WebTestCaseControllerTrait;
+use App\Tests\WebTestCaseUtilsTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 /**
- * Class UploadControllerTest
- * @package App\Tests\Controller\Api
+ * Class UploadControllerTest.
  */
 class UploadControllerTest extends WebTestCase
 {
-    use WebTestCaseControllerTrait;
+    use WebTestCaseUtilsTrait;
 
     /**
-     * Tests unallowed methods don't work on /api/upload URI
+     * Tests unallowed methods don't work on /api/upload URI.
      *
      * @dataProvider getUnallowedMethods
      *
@@ -34,7 +33,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests successfully submitting the upload form
+     * Tests successfully submitting the upload form.
      */
     public function testSubmitUploadFormSuccessfully(): void
     {
@@ -46,7 +45,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests POST request with empty file on the /api/upload URI
+     * Tests POST request with empty file on the /api/upload URI.
      */
     public function testPostEmptyFile(): void
     {
@@ -57,7 +56,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests submitting the upload form with too large CSV
+     * Tests submitting the upload form with too large CSV.
      */
     public function testSubmitUploadFormWithTooLargeCsv(): void
     {
@@ -73,7 +72,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests submitting the upload form with incorrect CSV
+     * Tests submitting the upload form with incorrect CSV.
      */
     public function testSubmitUploadFormWithIncorrectCsv(): void
     {
@@ -88,7 +87,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests submitting the upload form with wrong file type
+     * Tests submitting the upload form with wrong file type.
      */
     public function testSubmitUploadFormWithWrongFileType(): void
     {
@@ -118,7 +117,7 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * @param string $name Name of the uploaded file.
+     * @param string $name name of the uploaded file
      *
      * @return KernelBrowser
      */

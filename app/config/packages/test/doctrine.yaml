@@ -1,0 +1,9 @@
+parameters:
+    env(DATABASE_URL): ''
+
+doctrine:
+    dbal:
+        driver: 'pdo_sqlite'
+        url: '%env(DATABASE_URL)%'
+        memory: true
+        charset: utf8mb4
