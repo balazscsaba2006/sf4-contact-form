@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Validator\Constraints\Csv;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -41,6 +42,7 @@ class UploadType extends AbstractType
                         ],
                         'mimeTypesMessage' => 'The mime type of the file is invalid ({{ type }}). Allowed mime types are: {{ types }}',
                     ]),
+                    new Csv(['columnsCount' => 2]),
                 ],
             ])
             ->add('upload', SubmitType::class);

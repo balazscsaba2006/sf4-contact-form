@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 trait WebTestCaseUtilsTrait
 {
+    use TestCaseUtilsTrait;
+
     /**
      * @param string $name
      *
@@ -17,7 +19,7 @@ trait WebTestCaseUtilsTrait
     public function getUploadedFile(string $name): UploadedFile
     {
         return new UploadedFile(
-            __DIR__.'/.data/'.$name,
+            $this->getPathToFile($name),
             $name,
             'text/plain',
             null,
