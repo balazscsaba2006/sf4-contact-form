@@ -1,3 +1,5 @@
+[![GitHub tag](https://img.shields.io/github/tag/balazscsaba2006/sf4-contact-form.svg)](https://github.com/balazscsaba2006/sf4-contact-form/tags) * [![CircleCI](https://circleci.com/gh/balazscsaba2006/sf4-contact-form.svg?style=svg)](https://circleci.com/gh/balazscsaba2006/sf4-contact-form) * [![codecov](https://codecov.io/gh/balazscsaba2006/sf4-contact-form/branch/master/graph/badge.svg)](https://codecov.io/gh/balazscsaba2006/sf4-contact-form) * [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/balazscsaba2006/sf4-contact-form/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/balazscsaba2006/sf4-contact-form/?branch=master) * [![StyleCI Badge](https://styleci.io/repos/201541388/shield)](https://styleci.io/repos/201541388/)
+
 # SF4 Contact Form Implementation
 1. Creates an API endpoint for a contact form using Symfony 4.
 2. Assuming a CSV containing data from a legacy website, imports it into a new database.
