@@ -3,8 +3,6 @@
 # Check https://circleci.com/docs/2.0/language-php/ for more details
 #
 version: 2.1
-orbs:
-    codecov: codecov/codecov@1.0.2
 jobs:
     build:
         docker:
@@ -39,7 +37,11 @@ jobs:
                       - v1-dependencies-
 
             # Set env vars
-            - run: export SYMFONY_ENV=test
+            - run:
+                  name: "Exporting environment variables"
+                  command: |
+                      export SYMFONY_ENV=test
+                      export CODECOV_TOKEN="95e332a7-56c8-46dc-8804-510a2d3c6aab"
 
             - run:
                   name: "Install project dependencies"
@@ -81,8 +83,4 @@ jobs:
                       bin/console lint:twig templates
                       vendor/bin/php-cs-fixer fix src --diff || (echo "Coding standards are not respected. Run 'vendor/bin/php-cs-fixer fix'" && exit 1);
                       php bin/phpunit -v --configuration phpunit.xml.dist --coverage-clover=coverage.xml --coverage-text --colors=never --stderr
-
-            # Upload coverage report to Codecov
-            - codecov/upload:
-                  file: coverage.xml
-                  token: 95e332a7-56c8-46dc-8804-510a2d3c6aab
+                      if [ $? -eq 0 ]; then bash <(curl -s https://codecov.io/bash); fi
