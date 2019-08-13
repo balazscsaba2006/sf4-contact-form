@@ -49,7 +49,7 @@ jobs:
                   working_directory: ~/project/app
                   command: |
                       bin/console doctrine:database:create -n --env=test
-                      bin/console doctrine:schema:create -n --env=test
+#                      bin/console doctrine:schema:create -n --env=test
 
             # Run tests
             - run:
