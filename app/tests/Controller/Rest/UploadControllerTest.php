@@ -2,7 +2,9 @@
 
 namespace App\Tests\Controller\Rest;
 
+use App\Tests\FunctionalTestCaseUtilsTrait;
 use App\Tests\WebTestCaseUtilsTrait;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -13,6 +15,24 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 class UploadControllerTest extends WebTestCase
 {
     use WebTestCaseUtilsTrait;
+    use FunctionalTestCaseUtilsTrait;
+
+    /**
+     * @var EntityManager
+     */
+    private $entityManager;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        static::bootKernel();
+
+        $this->entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
+        $this->createSchema($this->entityManager);
+    }
 
     /**
      * Tests unallowed methods don't work on /api/upload URI.
@@ -150,5 +170,17 @@ class UploadControllerTest extends WebTestCase
         );
 
         return $client;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->dropDatabase($this->entityManager);
+        $this->entityManager->close();
+        $this->entityManager = null; // avoid memory leaks
     }
 }

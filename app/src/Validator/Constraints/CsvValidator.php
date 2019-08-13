@@ -69,6 +69,8 @@ class CsvValidator extends ConstraintValidator
                 ->setPlural((int) $constraint->columnsCount)
                 ->setCode(Csv::COLUMNS_COUNT_ERROR)
                 ->addViolation();
+
+            return;
         }
 
         $firstRecord = $this->handler->getFirstRecord($csv);

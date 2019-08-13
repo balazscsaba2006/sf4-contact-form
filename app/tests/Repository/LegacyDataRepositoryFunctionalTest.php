@@ -7,7 +7,6 @@ use App\Entity\LegacyData;
 use App\Repository\LegacyDataRepository;
 use App\Tests\FixtureAwareTestCase;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\SchemaTool;
 
 /**
  * Class LegacyDataRepositoryFunctionalTest.
@@ -34,7 +33,7 @@ class LegacyDataRepositoryFunctionalTest extends FixtureAwareTestCase
         $this->entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
         $this->legacyDataRepository = $this->entityManager->getRepository(LegacyData::class);
 
-        $this->updateSchema($this->entityManager);
+        $this->createSchema($this->entityManager);
 
         $this->addFixture(new LegacyDataFixtures());
         $this->executeFixtures();

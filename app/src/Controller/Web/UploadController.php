@@ -20,7 +20,7 @@ class UploadController extends AbstractController
     /**
      * @Route("/upload", name="upload")
      *
-     * @param Request $request
+     * @param Request          $request
      * @param HandlerInterface $csvHandler
      *
      * @return RedirectResponse|Response
@@ -38,7 +38,7 @@ class UploadController extends AbstractController
 
             $csv = $csvHandler->parse($csvFile->getPathname());
             $records = $csvHandler->getRecords($csv);
-            $csvHandler->validate($records);
+            $errors = $csvHandler->validateAndSave($records);
 
             // todo: read and persist the CSV file entries
             // todo: add flash message with results (num succeeded / num failed / total rows)

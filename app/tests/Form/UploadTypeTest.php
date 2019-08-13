@@ -40,7 +40,7 @@ class UploadTypeTest extends TypeTestCase
     protected function getTypes(): array
     {
         return [
-            new UploadType(2, true, ';')
+            new UploadType(2, true, ';'),
         ];
     }
 

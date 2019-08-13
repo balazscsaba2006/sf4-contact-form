@@ -18,7 +18,7 @@ class UploadController extends AbstractFOSRestController
     /**
      * @Rest\Post("/upload")
      *
-     * @param Request $request
+     * @param Request          $request
      * @param HandlerInterface $csvHandler
      *
      * @return Response

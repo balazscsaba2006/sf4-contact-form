@@ -2,13 +2,16 @@
 
 namespace App\Csv;
 
+use App\Csv\Error\ErrorBag;
 use App\Entity\LegacyData;
 use App\Form\LegacyDataType;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Exception as CsvException;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * Class CsvHandler.
@@ -56,7 +59,8 @@ class CsvHandler implements HandlerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @throws CsvException
      */
     public function parse(string $path): Reader
@@ -84,10 +88,12 @@ class CsvHandler implements HandlerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function validate(\Iterator $rows): void
+    public function validateAndSave(\Iterator $rows): ErrorBag
     {
+        $errorBag = new ErrorBag();
+
         foreach ($rows as $row) {
             $legacyData = new LegacyData();
             $form = $this->formFactory->create(LegacyDataType::class, $legacyData);
@@ -96,15 +102,31 @@ class CsvHandler implements HandlerInterface
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->entityManager->persist($legacyData);
             } else {
-                var_dump($form->getErrors(true));exit;
+                $errorBag->add($this->getErrorMessages($form));
+                var_dump($errorBag);
+                exit;
             }
         }
 
         $this->entityManager->flush();
+
+        return $errorBag;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     */
+    public function getFirstLine(Reader $csv)
+    {
+        if (true === $this->firstLineAsHeader) {
+            return $this->getHeader($csv);
+        }
+
+        return $this->getFirstRecord($csv);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getHeader(Reader $csv)
     {
@@ -120,23 +142,7 @@ class CsvHandler implements HandlerInterface
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getFirstLine(Reader $csv)
-    {
-        try {
-            if (true === $this->firstLineAsHeader) {
-                return $this->getHeader($csv);
-            }
-
-            return $this->getFirstRecord($csv);
-        } catch (CsvException $e) {
-            return [];
-        }
-    }
-
-    /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFirstRecord(Reader $csv)
     {
@@ -151,5 +157,27 @@ class CsvHandler implements HandlerInterface
         } catch (CsvException $e) {
             return [];
         }
+    }
+
+    /**
+     * Get error messages from form.
+     *
+     * @param FormInterface $form
+     *
+     * @return array
+     */
+    private function getErrorMessages(FormInterface $form): array
+    {
+        $errors = [];
+
+        if ($form->count() > 0) {
+            foreach ($form->all() as $child) {
+                if (!$child->isValid()) {
+                    $errors[$child->getName()] = trim((string) $form[$child->getName()]->getErrors());
+                }
+            }
+        }
+
+        return $errors;
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Tests\Controller\Web;
 
+use App\Tests\FunctionalTestCaseUtilsTrait;
 use App\Tests\WebTestCaseUtilsTrait;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -11,6 +13,24 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class UploadControllerTest extends WebTestCase
 {
     use WebTestCaseUtilsTrait;
+    use FunctionalTestCaseUtilsTrait;
+
+    /**
+     * @var EntityManager
+     */
+    private $entityManager;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        static::bootKernel();
+
+        $this->entityManager = static::$kernel->getContainer()->get('doctrine.orm.entity_manager');
+        $this->createSchema($this->entityManager);
+    }
 
     /**
      * Tests GET request on the /upload URI.
@@ -73,16 +93,14 @@ class UploadControllerTest extends WebTestCase
      */
     public function testSubmitUploadFormWithIncorrectCsv(): void
     {
-        $this->markTestSkipped('must be revisited.');
-
         [$client, $crawler] = $this->prepareTest('incorrect.csv');
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-//        $this->assertEquals(1, $crawler->filter('.form-error-message')->count());
-//        self::assertSelectorTextContains(
-//            '.form-error-message',
-//            'The mime type of the file is invalid ("application/pdf"). Allowed mime types are: "text/plain", "text/csv", "application/csv", "text/x-csv", "application/x-csv", "text/x-comma-separated-values", "text/comma-separated-values"'
-//        );
+        $this->assertEquals(1, $crawler->filter('.form-error-message')->count());
+        self::assertSelectorTextContains(
+            '.form-error-message',
+            'Each line must contain exactly 2 column(s), 1 column(s) found.'
+        );
     }
 
     /**
@@ -118,5 +136,17 @@ class UploadControllerTest extends WebTestCase
         $crawler = $client->submit($form);
 
         return [$client, $crawler];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->dropDatabase($this->entityManager);
+        $this->entityManager->close();
+        $this->entityManager = null; // avoid memory leaks
     }
 }

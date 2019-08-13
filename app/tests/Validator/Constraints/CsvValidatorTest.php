@@ -19,13 +19,6 @@ class CsvValidatorTest extends ConstraintValidatorTestCase
 {
     use WebTestCaseUtilsTrait;
 
-    private function getCsvHandlerMock(): MockObject
-    {
-        return $this->getMockBuilder(CsvHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
-
     /**
      * @return CsvValidator
      */
@@ -48,15 +41,12 @@ class CsvValidatorTest extends ConstraintValidatorTestCase
 
     public function testValidUploadedFile(): void
     {
-        $csvHandlerMock = $this->getCsvHandlerMock();
-        $csvHandlerMock->expects($this->once())
-            ->method('getFirstLine')
-            ->willReturn(['email', 'message']);
-        $csvHandlerMock->expects($this->once())
-            ->method('getFirstRecord')
-            ->willReturn(['gboss@live.com', 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.']);
-
-        $validator = new CsvValidator($csvHandlerMock);
+        $csvHandler = $this->getCsvHandlerStub(
+            ['email', 'message'],
+            true,
+            ['gboss@live.com', 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.']
+        );
+        $validator = new CsvValidator($csvHandler);
 
         $file = $this->getUploadedFile('correct.csv');
         $validator->validate($file, new Csv(['columnsCount' => 2]));
@@ -79,32 +69,70 @@ class CsvValidatorTest extends ConstraintValidatorTestCase
 
     public function testBlankUploadedFileWithFirstLineAsHeader(): void
     {
-        $csvHandlerMock = $this->getCsvHandlerMock();
-        $csvHandlerMock->expects($this->once())
-            ->method('getFirstLine')
-            ->willReturn([]);
-        $csvHandlerMock->expects($this->once())
-            ->method('getFirstRecord')
-            ->willReturn([]);
-
-        $validator = new CsvValidator($csvHandlerMock);
+        $csvHandler = $this->getCsvHandlerStub([], false);
+        $validator = new CsvValidator($csvHandler);
+        $context = $this->createContext();
+        $validator->initialize($context);
 
         $file = $this->getUploadedFile('blank.csv');
         $validator->validate($file, new Csv(['columnsCount' => 2]));
 
-        // expect violations for invalid column count and empty records
-        $this->assertSame(2, $violationsCount = \count($this->context->getViolations()));
+        $this->assertSame(1, $violationsCount = \count($context->getViolations()));
+    }
+
+    public function testBlankUploadedFileWithFirstLineAsHeaderAndEmptyContent(): void
+    {
+        $csvHandler = $this->getCsvHandlerStub(
+            ['email', 'message'],
+            true,
+            []
+        );
+        $validator = new CsvValidator($csvHandler);
+        $context = $this->createContext();
+        $validator->initialize($context);
+
+        $file = $this->getUploadedFile('empty_content.csv');
+        $validator->validate($file, new Csv(['columnsCount' => 2]));
+
+        $this->assertSame(1, $violationsCount = \count($context->getViolations()));
     }
 
     public function testBlankUploadedFileWithoutHeader(): void
     {
+        $csvHandler = $this->getCsvHandlerStub([], false);
+        $validator = new CsvValidator($csvHandler);
+        $context = $this->createContext();
+        $validator->initialize($context);
+
         $file = $this->getUploadedFile('blank.csv');
-        $this->validator->validate($file, new Csv([
+        $validator->validate($file, new Csv([
             'columnsCount' => 2,
             'firstLineAsHeader' => false,
         ]));
 
-        // expect violations for invalid column count and empty records
-        $this->assertSame(2, $violationsCount = \count($this->context->getViolations()));
+        $this->assertSame(1, $violationsCount = \count($context->getViolations()));
+    }
+
+    private function getCsvHandlerMock(): MockObject
+    {
+        return $this->getMockBuilder(CsvHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
+
+    private function getCsvHandlerStub($firstLineArg, bool $mockFirstRecord = true, $firstRecordArg = null): MockObject
+    {
+        $csvHandlerMock = $this->getCsvHandlerMock();
+        $csvHandlerMock->expects($this->once())
+            ->method('getFirstLine')
+            ->willReturn($firstLineArg);
+
+        if (true === $mockFirstRecord) {
+            $csvHandlerMock->expects($this->once())
+                ->method('getFirstRecord')
+                ->willReturn($firstRecordArg);
+        }
+
+        return $csvHandlerMock;
     }
 }

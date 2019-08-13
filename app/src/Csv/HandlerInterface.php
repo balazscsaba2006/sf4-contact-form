@@ -2,6 +2,7 @@
 
 namespace App\Csv;
 
+use App\Csv\Error\ErrorBag;
 use League\Csv\Reader;
 
 /**
@@ -28,11 +29,13 @@ interface HandlerInterface
     public function getRecords(Reader $csv): \Iterator;
 
     /**
-     * Validates rows of a CSV file.
+     * Validates rows of a CSV file and saves correct entries.
      *
      * @param \Iterator $rows
+     *
+     * @return ErrorBag
      */
-    public function validate(\Iterator $rows): void;
+    public function validateAndSave(\Iterator $rows): ErrorBag;
 
     /**
      * @param Reader $csv

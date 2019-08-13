@@ -6,7 +6,6 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bridge\Doctrine\DataFixtures\ContainerAwareLoader;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -15,6 +14,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 abstract class FixtureAwareTestCase extends KernelTestCase
 {
+    use FunctionalTestCaseUtilsTrait;
+
     /**
      * @var ORMExecutor
      */
@@ -48,27 +49,6 @@ abstract class FixtureAwareTestCase extends KernelTestCase
         $this->getFixtureExecutor()->execute(
             $this->getFixtureLoader()->getFixtures()
         );
-    }
-
-    /**
-     * Run the schema update tool using our entity metadata.
-     *
-     * @param EntityManager $entityManager
-     */
-    protected function updateSchema(EntityManager $entityManager): void
-    {
-        $schemaTool = new SchemaTool($entityManager);
-        $schemaTool->updateSchema($entityManager->getMetadataFactory()->getAllMetadata());
-    }
-
-    /**
-     * Drop database with schema tool.
-     *
-     * @param EntityManager $entityManager
-     */
-    protected function dropDatabase(EntityManager $entityManager): void
-    {
-        (new SchemaTool($entityManager))->dropDatabase();
     }
 
     /**
