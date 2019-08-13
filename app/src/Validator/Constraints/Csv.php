@@ -4,7 +4,6 @@ namespace App\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\InvalidOptionsException;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * Class Csv.
@@ -45,8 +44,7 @@ class Csv extends Constraint
     {
         if (null !== $options
             && array_key_exists('delimiter', $options)
-            && null === $options['delimiter'])
-        {
+            && null === $options['delimiter']) {
             $options['delimiter'] = self::DEFAULT_DELIMITER;
         }
 
@@ -58,17 +56,17 @@ class Csv extends Constraint
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getRequiredOptions(): array
     {
         return [
-            'columnsCount'
+            'columnsCount',
         ];
     }
 
     /**
-     * Checks "columnsCount" option validity
+     * Checks "columnsCount" option validity.
      */
     private function assertColumnsCountValidity(): void
     {
@@ -90,7 +88,7 @@ class Csv extends Constraint
     }
 
     /**
-     * Checks "firstLineAsHeader" option validity
+     * Checks "firstLineAsHeader" option validity.
      */
     private function assertFirstLineAsHeaderValidity(): void
     {
@@ -104,7 +102,7 @@ class Csv extends Constraint
     }
 
     /**
-     * Checks "delimiter" option validity
+     * Checks "delimiter" option validity.
      */
     private function assertDelimiterValidity(): void
     {
