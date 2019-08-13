@@ -14,3 +14,18 @@ services:
     # Fixes issue: https://github.com/FriendsOfSymfony/FOSRestBundle/issues/1768
     sensio_framework_extra.view.listener:
         alias: Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener
+
+    App\Form\UploadType:
+        arguments:
+            - '%env(int:CSV_COLUMNS_COUNT)%'
+            - '%env(bool:CSV_FIRST_LINE_AS_HEADER)%'
+            - '%env(string:CSV_DELIMITER)%'
+        tags:
+            - { name: form.type }
+
+    App\Csv\CsvHandler:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@form.factory'
+            - '%env(bool:CSV_FIRST_LINE_AS_HEADER)%'
+            - '%env(string:CSV_DELIMITER)%'

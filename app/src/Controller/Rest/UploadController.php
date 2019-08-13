@@ -2,6 +2,7 @@
 
 namespace App\Controller\Rest;
 
+use App\Csv\HandlerInterface;
 use App\Form\UploadType;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -18,10 +19,11 @@ class UploadController extends AbstractFOSRestController
      * @Rest\Post("/upload")
      *
      * @param Request $request
+     * @param HandlerInterface $csvHandler
      *
      * @return Response
      */
-    public function postUpload(Request $request): Response
+    public function postUpload(Request $request, HandlerInterface $csvHandler): Response
     {
         $form = $this->createForm(UploadType::class);
         $form->handleRequest($request);

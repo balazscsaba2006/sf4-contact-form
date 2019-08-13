@@ -2,9 +2,8 @@
 
 namespace App\Validator\Constraints;
 
+use App\Csv\HandlerInterface;
 use League\Csv\Exception as CsvException;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -16,6 +15,21 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
  */
 class CsvValidator extends ConstraintValidator
 {
+    /**
+     * @var HandlerInterface
+     */
+    private $handler;
+
+    /**
+     * CsvValidator constructor.
+     *
+     * @param HandlerInterface $handler
+     */
+    public function __construct(HandlerInterface $handler)
+    {
+        $this->handler = $handler;
+    }
+
     /**
      * @param mixed      $value
      * @param Constraint $constraint
@@ -38,14 +52,14 @@ class CsvValidator extends ConstraintValidator
             throw new UnexpectedValueException($value, UploadedFile::class);
         }
 
-        $csv = Reader::createFromPath($value->getPathname(), 'r');
+        $csv = $this->handler->parse($value->getPathname());
         $csv->setDelimiter($constraint->delimiter);
 
         if (true === $constraint->firstLineAsHeader) {
             $csv->setHeaderOffset(0);
         }
 
-        $firstLine = $this->getCsvFirstLine($constraint, $csv);
+        $firstLine = $this->handler->getFirstLine($csv);
         $columnsFound = \count($firstLine);
 
         if ($constraint->columnsCount !== $columnsFound) {
@@ -57,50 +71,11 @@ class CsvValidator extends ConstraintValidator
                 ->addViolation();
         }
 
-        $firstRecord = $this->getCsvFirstRecord($csv);
+        $firstRecord = $this->handler->getFirstRecord($csv);
         if (empty($firstRecord)) {
             $this->context->buildViolation($constraint->noRecordsMessage)
                 ->setCode(Csv::NO_RECORDS_ERROR)
                 ->addViolation();
-        }
-    }
-
-    /**
-     * @param Csv    $constraint
-     * @param Reader $csv
-     *
-     * @return array|mixed|string[]
-     */
-    private function getCsvFirstLine(Csv $constraint, Reader $csv)
-    {
-        try {
-            if (true === $constraint->firstLineAsHeader) {
-                return $csv->getHeader();
-            }
-
-            return $this->getCsvFirstRecord($csv);
-        } catch (CsvException $e) {
-            return [];
-        }
-    }
-
-    /**
-     * @param Reader $csv
-     *
-     * @return array|mixed|string[]
-     */
-    private function getCsvFirstRecord(Reader $csv)
-    {
-        try {
-            $stmt = (new Statement())
-                ->offset(0)
-                ->limit(1);
-
-            $result = $stmt->process($csv);
-
-            return $result->fetchOne(0);
-        } catch (CsvException $e) {
-            return [];
         }
     }
 }

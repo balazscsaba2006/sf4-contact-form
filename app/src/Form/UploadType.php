@@ -18,10 +18,39 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class UploadType extends AbstractType
 {
     /**
+     * @var int
+     */
+    private $columnsCount;
+
+    /**
+     * @var bool
+     */
+    private $firstLineAsHeader;
+
+    /**
+     * @var string
+     */
+    private $delimiter;
+
+    /**
+     * UploadType constructor.
+     *
+     * @param int    $columnsCount
+     * @param bool   $firstLineAsHeader
+     * @param string $delimiter
+     */
+    public function __construct(int $columnsCount, bool $firstLineAsHeader, string $delimiter)
+    {
+        $this->columnsCount = $columnsCount;
+        $this->firstLineAsHeader = $firstLineAsHeader;
+        $this->delimiter = $delimiter;
+    }
+
+    /**
      * @param FormBuilderInterface $builder
      * @param array                $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('file', FileType::class, [
@@ -46,19 +75,18 @@ class UploadType extends AbstractType
                     ]),
                     new Csv([
                         'groups' => 'Strict',
-                        'columnsCount' => 2,
-                        'firstLineAsHeader' => true,
-                        'delimiter' => ';',
+                        'columnsCount' => $this->columnsCount,
+                        'firstLineAsHeader' => $this->firstLineAsHeader,
+                        'delimiter' => $this->delimiter,
                     ]),
                 ],
-            ])
-            ->add('upload', SubmitType::class);
+            ]);
     }
 
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => null,

@@ -31,6 +31,7 @@ class LegacyDataType extends AbstractType
         $resolver->setDefaults([
             'data_class' => LegacyData::class,
             'csrf_protection' => false,
+            'allow_extra_fields' => true,
         ]);
     }
 }

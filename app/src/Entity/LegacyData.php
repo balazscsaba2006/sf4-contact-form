@@ -20,8 +20,12 @@ class LegacyData
     /**
      * @ORM\Column(type="string", length=255)
      *
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(message="The email should not be blank.")
      * @Assert\Email()
+     * @Assert\Length(
+     *      max = 255,
+     *      maxMessage = "The email cannot be longer than {{ limit }} characters."
+     * )
      */
     private $email;
 
@@ -29,7 +33,7 @@ class LegacyData
      * @ORM\Column(type="text")
      *
      * @Assert\Length(
-     *      max = 50,
+     *      max = 1000,
      *      maxMessage = "The message cannot be longer than {{ limit }} characters."
      * )
      */

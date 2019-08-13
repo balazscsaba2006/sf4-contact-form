@@ -35,16 +35,22 @@ class UploadTypeTest extends TypeTestCase
     }
 
     /**
+     * @return array
+     */
+    protected function getTypes(): array
+    {
+        return [
+            new UploadType(2, true, ';')
+        ];
+    }
+
+    /**
      * Unit test form type.
      */
     public function testSubmitValidData(): void
     {
         $file = $this->getUploadedFile('correct.csv');
-        $formData = [
-            'upload' => [
-                'file' => $file,
-            ],
-        ];
+        $formData = ['file' => $file];
 
         $form = $this->factory->create(UploadType::class);
 

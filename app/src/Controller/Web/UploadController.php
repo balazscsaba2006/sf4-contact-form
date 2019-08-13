@@ -2,8 +2,10 @@
 
 namespace App\Controller\Web;
 
+use App\Csv\HandlerInterface;
 use App\Form\UploadType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,17 +21,24 @@ class UploadController extends AbstractController
      * @Route("/upload", name="upload")
      *
      * @param Request $request
+     * @param HandlerInterface $csvHandler
      *
      * @return RedirectResponse|Response
      */
-    public function index(Request $request)
+    public function index(Request $request, HandlerInterface $csvHandler)
     {
         $form = $this->createForm(UploadType::class);
+        $form->add('upload', SubmitType::class);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $csvFile */
             $csvFile = $form['file']->getData();
+
+            $csv = $csvHandler->parse($csvFile->getPathname());
+            $records = $csvHandler->getRecords($csv);
+            $csvHandler->validate($records);
 
             // todo: read and persist the CSV file entries
             // todo: add flash message with results (num succeeded / num failed / total rows)
