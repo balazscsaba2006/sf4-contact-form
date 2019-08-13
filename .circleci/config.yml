@@ -17,7 +17,7 @@ jobs:
                   name: "Install System Dependencies"
                   command: |
                       sudo apt-get update
-                      sudo apt-get install php7.2-sqlite3
+                      sudo apt-get install php7.2-sqlite3 -y -q
 
             # Download and cache dependencies
             - restore_cache:
