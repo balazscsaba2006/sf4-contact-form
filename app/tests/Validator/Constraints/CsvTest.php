@@ -5,8 +5,12 @@ namespace App\Tests\Validator\Constraints;
 use App\Validator\Constraints\Csv;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Exception\InvalidOptionsException;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
+/**
+ * Class CsvTest.
+ */
 class CsvTest extends TestCase
 {
     public function testFullConfiguration(): void
@@ -62,6 +66,12 @@ class CsvTest extends TestCase
     {
         $this->expectException(ValidatorException::class);
         new Csv(['columnsCount' => $columnsCount]);
+    }
+
+    public function testEmptyOptions(): void
+    {
+        $this->expectException(MissingOptionsException::class);
+        new Csv();
     }
 
     public function testInvalidValueForFirstLineAsHeaderThrowsException(): void

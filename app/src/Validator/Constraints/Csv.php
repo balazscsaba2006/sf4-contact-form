@@ -43,7 +43,10 @@ class Csv extends Constraint
      */
     public function __construct($options = null)
     {
-        if (array_key_exists('delimiter', $options) && null === $options['delimiter']) {
+        if (null !== $options
+            && array_key_exists('delimiter', $options)
+            && null === $options['delimiter'])
+        {
             $options['delimiter'] = self::DEFAULT_DELIMITER;
         }
 

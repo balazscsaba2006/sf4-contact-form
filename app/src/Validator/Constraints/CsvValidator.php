@@ -73,27 +73,34 @@ class CsvValidator extends ConstraintValidator
      */
     private function getCsvFirstLine(Csv $constraint, Reader $csv)
     {
-        if (true === $constraint->firstLineAsHeader) {
-            return $csv->getHeader();
-        }
+        try {
+            if (true === $constraint->firstLineAsHeader) {
+                return $csv->getHeader();
+            }
 
-        return $this->getCsvFirstRecord($csv);
+            return $this->getCsvFirstRecord($csv);
+        } catch (CsvException $e) {
+            return [];
+        }
     }
 
     /**
-     * @param Csv    $constraint
      * @param Reader $csv
      *
      * @return array|mixed|string[]
      */
     private function getCsvFirstRecord(Reader $csv)
     {
-        $stmt = (new Statement())
-            ->offset(0)
-            ->limit(1);
+        try {
+            $stmt = (new Statement())
+                ->offset(0)
+                ->limit(1);
 
-        $result = $stmt->process($csv);
+            $result = $stmt->process($csv);
 
-        return $result->fetchOne(0);
+            return $result->fetchOne(0);
+        } catch (CsvException $e) {
+            return [];
+        }
     }
 }
