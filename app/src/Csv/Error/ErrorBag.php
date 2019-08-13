@@ -9,11 +9,13 @@ class ErrorBag implements \IteratorAggregate, \Countable
 {
     /**
      * Error storage.
+     *
+     * @param ErrorRow[]|array
      */
     protected $errors;
 
     /**
-     * @param array $errors An array of errors
+     * @param array $errors
      */
     public function __construct(array $errors = [])
     {
@@ -23,20 +25,20 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * @param string $key
      *
-     * @return mixed
+     * @return ErrorRow
      */
-    public function __get(string $key)
+    public function __get(string $key): ErrorRow
     {
         return $this->get($key);
     }
 
     /**
-     * @param string $key
-     * @param mixed  $value
+     * @param string   $key
+     * @param ErrorRow $row
      */
-    public function __set(string $key, $value)
+    public function __set(string $key, ErrorRow $row)
     {
-        $this->set($key, $value);
+        $this->set($key, $row);
     }
 
     /**
@@ -52,7 +54,7 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * Returns the errors.
      *
-     * @return array An array of errors
+     * @return ErrorRow[]|array An array of errors
      */
     public function all(): array
     {
@@ -62,7 +64,7 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * Returns the error keys.
      *
-     * @return array An array of error keys
+     * @return array
      */
     public function keys(): array
     {
@@ -70,20 +72,30 @@ class ErrorBag implements \IteratorAggregate, \Countable
     }
 
     /**
+     * @param int $rowNumber
+     * @param string $field
+     * @param array $messages
+     */
+    public function addRow(int $rowNumber, string $field, array $messages)
+    {
+        $this->add(new ErrorRow($rowNumber, $field, $messages));
+    }
+
+    /**
      * Adds errors.
      *
-     * @param array $errors An array of errors
+     * @param ErrorRow $row
      */
-    public function add(array $errors = [])
+    public function add(ErrorRow $row)
     {
-        $this->errors = array_replace($this->errors, $errors);
+        $this->errors[(string) $row] = $row;
     }
 
     /**
      * Returns an error by name.
      *
-     * @param string $key     The key
-     * @param mixed  $default The default value if the error key does not exist
+     * @param string $key
+     * @param mixed  $default
      *
      * @return mixed
      */
@@ -95,14 +107,14 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * Sets an error by name.
      *
-     * @param string $key   The key
-     * @param mixed  $value The value
+     * @param string   $key
+     * @param ErrorRow $row
      *
      * @return self
      */
-    public function set($key, $value): self
+    public function set($key, ErrorRow $row): self
     {
-        $this->errors[$key] = $value;
+        $this->errors[$key] = $row;
 
         return $this;
     }
@@ -110,9 +122,9 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * Returns true if the error is defined.
      *
-     * @param string $key The key
+     * @param string $key
      *
-     * @return bool true if the error exists, false otherwise
+     * @return bool
      */
     public function has($key): bool
     {
@@ -122,7 +134,7 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * Removes an error.
      *
-     * @param string $key The key
+     * @param string $key
      */
     public function remove($key)
     {
@@ -132,7 +144,7 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * Returns an iterator for errors.
      *
-     * @return \ArrayIterator An \ArrayIterator instance
+     * @return \ArrayIterator
      */
     public function getIterator(): \ArrayIterator
     {
@@ -142,7 +154,7 @@ class ErrorBag implements \IteratorAggregate, \Countable
     /**
      * Returns the number of errors.
      *
-     * @return int The number of errors
+     * @return int
      */
     public function count(): int
     {

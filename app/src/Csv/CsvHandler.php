@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Exception as CsvException;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -90,27 +89,35 @@ class CsvHandler implements HandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function validateAndSave(\Iterator $rows): ErrorBag
+    public function validateAndSave(\Iterator $rows): Result
     {
-        $errorBag = new ErrorBag();
+        $result = new Result();
 
-        foreach ($rows as $row) {
+        foreach ($rows as $rowNumber=>$row) {
             $legacyData = new LegacyData();
             $form = $this->formFactory->create(LegacyDataType::class, $legacyData);
             $form->submit($row);
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->entityManager->persist($legacyData);
+                $result->incrementSaved();
+
+                // flush every 100 rows
+                if (0 === ($rowNumber % 100)) {
+                    $this->entityManager->flush();
+                }
             } else {
-                $errorBag->add($this->getErrorMessages($form));
-                var_dump($errorBag);
-                exit;
+                $errors = $this->getErrorMessages($form);
+                foreach ($errors as $field=>$messages) {
+                    $result->addError($rowNumber, $field, $messages);
+                }
             }
         }
 
         $this->entityManager->flush();
+        $this->entityManager->clear();
 
-        return $errorBag;
+        return $result;
     }
 
     /**
@@ -173,7 +180,10 @@ class CsvHandler implements HandlerInterface
         if ($form->count() > 0) {
             foreach ($form->all() as $child) {
                 if (!$child->isValid()) {
-                    $errors[$child->getName()] = trim((string) $form[$child->getName()]->getErrors());
+                    $error = (string) $form[$child->getName()]->getErrors();
+
+                    // remove "ERROR:" prefix added by FormErrorIterator
+                    $errors[$child->getName()][] = trim(str_replace('ERROR:', '', $error));
                 }
             }
         }

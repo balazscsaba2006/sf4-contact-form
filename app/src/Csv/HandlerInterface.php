@@ -2,7 +2,7 @@
 
 namespace App\Csv;
 
-use App\Csv\Error\ErrorBag;
+use App\Csv\Result;
 use League\Csv\Reader;
 
 /**
@@ -33,9 +33,9 @@ interface HandlerInterface
      *
      * @param \Iterator $rows
      *
-     * @return ErrorBag
+     * @return Result
      */
-    public function validateAndSave(\Iterator $rows): ErrorBag;
+    public function validateAndSave(\Iterator $rows): Result;
 
     /**
      * @param Reader $csv

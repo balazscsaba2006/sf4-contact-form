@@ -4,5 +4,19 @@
 
 {% block body %}
     <h1>Upload a CSV file to be parsed and saved.</h1>
+    <h4>Configuration</h4>
+    <p class="lead">
+        <ul>
+            <li>Columns count: <span class="badge badge-primary">{{ columnsCount }}</span></li>
+            <li>Use first line as header:
+                {%- if firstLineAsHeader != false %}
+                    <span class="badge badge-success">true</span>
+                {% else %}
+                    <span class="badge badge-danger">false</span>
+                {% endif -%}
+            </li>
+            <li>Delimiter: <span class="badge badge-primary">{{ delimiter }}</span></li>
+        </ul>
+    </p>
     {{ form(form) }}
 {% endblock %}

@@ -38,18 +38,34 @@ class UploadController extends AbstractController
 
             $csv = $csvHandler->parse($csvFile->getPathname());
             $records = $csvHandler->getRecords($csv);
-            $errors = $csvHandler->validateAndSave($records);
+            $result = $csvHandler->validateAndSave($records);
+            $recordsCount = $csv->count();
 
-            // todo: read and persist the CSV file entries
-            // todo: add flash message with results (num succeeded / num failed / total rows)
-
-            $this->addFlash('success', 'Nice job! The uploaded file was successfully saved.');
+            // all records saved successfully
+            if ($recordsCount === $result->countSaved()) {
+                $this->addFlash('success', 'Nice job! The uploaded file was successfully saved.');
+            }
+            // no row could be saved
+            else if ($csv->count() === $result->countErrors()) {
+                $this->addFlash('danger', 'Whoops. All records are invalid, nothing could be saved.');
+            }
+            // partially saved rows
+            else {
+                $this->addFlash('warning', sprintf('Successfully saved %d of %d records. Check rows: %s',
+                    $result->countSaved(),
+                    $recordsCount,
+                    '#'.implode(', #', $result->getErrors()->keys())
+                ));
+            }
 
             return $this->redirect($this->generateUrl('upload'));
         }
 
         return $this->render('upload/index.html.twig', [
             'form' => $form->createView(),
+            'columnsCount' => $this->getParameter('csv_columns_count'),
+            'firstLineAsHeader' => $this->getParameter('csv_first_line_as_header'),
+            'delimiter' => $this->getParameter('csv_delimiter'),
         ]);
     }
 }

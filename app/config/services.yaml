@@ -1,3 +1,8 @@
+parameters:
+    csv_columns_count: '%env(int:CSV_COLUMNS_COUNT)%'
+    csv_first_line_as_header: '%env(bool:CSV_FIRST_LINE_AS_HEADER)%'
+    csv_delimiter: '%env(string:CSV_DELIMITER)%'
+
 services:
     _defaults:
         autowire: true
