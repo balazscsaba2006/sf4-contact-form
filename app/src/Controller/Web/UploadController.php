@@ -46,7 +46,7 @@ class UploadController extends AbstractController
                 $this->addFlash('success', 'Nice job! The uploaded file was successfully saved.');
             }
             // no row could be saved
-            else if ($csv->count() === $result->countErrors()) {
+            elseif ($csv->count() === $result->countErrors()) {
                 $this->addFlash('danger', 'Whoops. All records are invalid, nothing could be saved.');
             }
             // partially saved rows

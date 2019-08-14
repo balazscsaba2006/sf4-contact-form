@@ -2,7 +2,6 @@
 
 namespace App\Csv;
 
-use App\Csv\Error\ErrorBag;
 use App\Entity\LegacyData;
 use App\Form\LegacyDataType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -93,7 +92,7 @@ class CsvHandler implements HandlerInterface
     {
         $result = new Result();
 
-        foreach ($rows as $rowNumber=>$row) {
+        foreach ($rows as $rowNumber => $row) {
             $legacyData = new LegacyData();
             $form = $this->formFactory->create(LegacyDataType::class, $legacyData);
             $form->submit($row);
@@ -108,7 +107,7 @@ class CsvHandler implements HandlerInterface
                 }
             } else {
                 $errors = $this->getErrorMessages($form);
-                foreach ($errors as $field=>$messages) {
+                foreach ($errors as $field => $messages) {
                     $result->addError($rowNumber, $field, $messages);
                 }
             }
@@ -177,15 +176,18 @@ class CsvHandler implements HandlerInterface
     {
         $errors = [];
 
-        if ($form->count() > 0) {
-            foreach ($form->all() as $child) {
-                if (!$child->isValid()) {
-                    $error = (string) $form[$child->getName()]->getErrors();
+        if (0 === $form->count()) {
+            return $errors;
+        }
 
-                    // remove "ERROR:" prefix added by FormErrorIterator
-                    $errors[$child->getName()][] = trim(str_replace('ERROR:', '', $error));
-                }
+        foreach ($form->all() as $child) {
+            if ($child->isValid()) {
+                continue;
             }
+
+            // remove "ERROR:" prefix added by FormErrorIterator
+            $error = (string) $form[$child->getName()]->getErrors();
+            $errors[$child->getName()][] = trim(str_replace('ERROR:', '', $error));
         }
 
         return $errors;

@@ -7,6 +7,8 @@ use App\Form\UploadType;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,10 +31,48 @@ class UploadController extends AbstractFOSRestController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // todo: read and persist the CSV file entries
-            // todo: add flash message with results (num succeeded / num failed / total rows)
+            /** @var UploadedFile $csvFile */
+            $csvFile = $form['file']->getData();
 
-            return $this->handleView(View::create(['status' => 'ok'], Response::HTTP_CREATED));
+            $csv = $csvHandler->parse($csvFile->getPathname());
+            $records = $csvHandler->getRecords($csv);
+            $result = $csvHandler->validateAndSave($records);
+            $recordsCount = $csv->count();
+
+            // all records saved successfully
+            if ($recordsCount === $result->countSaved()) {
+                return $this->handleView(View::create(['status' => 'ok'], Response::HTTP_CREATED));
+            }
+
+            // no row could be saved
+            if ($csv->count() === $result->countErrors()) {
+                $errors = $result->getErrorsAsArray();
+                foreach ($errors as $error) {
+                    $form['file']->addError(new FormError($error));
+                }
+
+                return $this->handleView(View::create($form));
+            }
+
+            // partially saved rows
+            $data = [
+                'status' => 'partially_ok',
+                'message' => 'Validation Partially Failed',
+                'errors' => [
+                    'children' => [
+                        'file' => [
+                            'errors' => [],
+                        ],
+                    ],
+                ],
+            ];
+
+            $errors = $result->getErrorsAsArray();
+            foreach ($errors as $error) {
+                $data['errors']['children']['file']['errors'][] = $error;
+            }
+
+            return $this->handleView(View::create($data, Response::HTTP_CREATED));
         }
 
         // empty requests are not submitted; trigger submission manually to return errors

@@ -2,17 +2,17 @@
 
 namespace App\Tests\Controller\Rest;
 
+use App\Tests\ApiTestCase;
 use App\Tests\FunctionalTestCaseUtilsTrait;
 use App\Tests\WebTestCaseUtilsTrait;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 /**
  * Class UploadControllerTest.
  */
-class UploadControllerTest extends WebTestCase
+class UploadControllerTest extends ApiTestCase
 {
     use WebTestCaseUtilsTrait;
     use FunctionalTestCaseUtilsTrait;
@@ -53,15 +53,69 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests successfully submitting the upload form.
+     * Tests successfully submitting the upload form with all records valid.
      */
-    public function testSubmitUploadFormSuccessfully(): void
+    public function testPostFormSuccessfullyWithAllRecordsValid(): void
     {
         $client = $this->prepareTest('correct.csv');
-        $content = json_decode($client->getResponse()->getContent(), false);
 
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $this->assertEquals('ok', $content->status);
+        $this->assertJsonEquals(['status' => 'ok'], $client->getResponse()->getContent());
+    }
+
+    /**
+     * Tests successfully submitting the upload form with all records being invalid.
+     */
+    public function testPostFormSuccessfullyWithAllRecordsBeingInvalid(): void
+    {
+        $client = $this->prepareTest('all_records_invalid.csv');
+
+        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertJsonStructure([
+            'code',
+            'message',
+            'errors' => [
+                'children' => [
+                    'file' => [
+                        'errors' => [],
+                    ],
+                ],
+            ],
+        ], $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), false);
+        $this->assertEquals([
+            'Error(s) on row #1 field email: This value is not a valid email address.',
+            'Error(s) on row #2 field email: This value is not a valid email address.',
+            'Error(s) on row #3 field message: The message cannot be longer than 1000 characters.',
+        ], $content->errors->children->file->errors);
+    }
+
+    /**
+     * Tests successfully submitting the upload form with partial valid records.
+     */
+    public function testPostFormSuccessfullyWithPartialValidRecords(): void
+    {
+        $client = $this->prepareTest('partial_valid_records.csv');
+
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertJsonStructure([
+            'status',
+            'message',
+            'errors' => [
+                'children' => [
+                    'file' => [
+                        'errors' => [],
+                    ],
+                ],
+            ],
+        ], $client->getResponse()->getContent());
+
+        $content = json_decode($client->getResponse()->getContent(), false);
+        $this->assertEquals('partially_ok', $content->status);
+        $this->assertEquals([
+            'Error(s) on row #1 field email: This value is not a valid email address.',
+        ], $content->errors->children->file->errors);
     }
 
     /**
@@ -73,6 +127,7 @@ class UploadControllerTest extends WebTestCase
         $client->request('POST', '/api/upload');
 
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertJson($client->getResponse()->getContent());
     }
 
     /**
@@ -84,6 +139,7 @@ class UploadControllerTest extends WebTestCase
         $content = json_decode($client->getResponse()->getContent(), false);
 
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertJson($client->getResponse()->getContent());
         $this->assertEquals('Validation Failed', $content->message);
         $this->assertEquals(
             'File contains no records.',
@@ -100,6 +156,7 @@ class UploadControllerTest extends WebTestCase
         $content = json_decode($client->getResponse()->getContent(), false);
 
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertJson($client->getResponse()->getContent());
         $this->assertEquals('Validation Failed', $content->message);
         $this->assertEquals(
             'The file is too large (1066.34 kB). Allowed maximum size is 1024 kB.',
@@ -112,14 +169,16 @@ class UploadControllerTest extends WebTestCase
      */
     public function testPostWithIncorrectCsv(): void
     {
-        $this->markTestSkipped('must be revisited.');
-
         $client = $this->prepareTest('incorrect.csv');
         $content = json_decode($client->getResponse()->getContent(), false);
 
-//        $this->assertEquals(400, $client->getResponse()->getStatusCode());
-//        $this->assertEquals('Validation Failed', $content->message);
-//        $this->assertEquals('The file is too large (1066.34 kB). Allowed maximum size is 1024 kB.', $content->errors->children->file->errors[0]);
+        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertJson($client->getResponse()->getContent());
+        $this->assertEquals('Validation Failed', $content->message);
+        $this->assertEquals(
+            'Each line must contain exactly 2 column(s), 1 column(s) found.',
+            $content->errors->children->file->errors[0]
+        );
     }
 
     /**
@@ -131,6 +190,7 @@ class UploadControllerTest extends WebTestCase
         $content = json_decode($client->getResponse()->getContent(), false);
 
         $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertJson($client->getResponse()->getContent());
         $this->assertEquals('Validation Failed', $content->message);
         $this->assertEquals(
             'The mime type of the file is invalid ("application/pdf"). Allowed mime types are: "text/plain", "text/csv", "application/csv", "text/x-csv", "application/x-csv", "text/x-comma-separated-values", "text/comma-separated-values"',

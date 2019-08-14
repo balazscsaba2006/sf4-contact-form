@@ -12,14 +12,16 @@ class ErrorBag implements \IteratorAggregate, \Countable
      *
      * @param ErrorRow[]|array
      */
-    protected $errors;
+    protected $errors = [];
 
     /**
-     * @param array $errors
+     * @param ErrorRow[]|array $errors
      */
     public function __construct(array $errors = [])
     {
-        $this->errors = $errors;
+        foreach ($errors as $errorRow) {
+            $this->add($errorRow);
+        }
     }
 
     /**
@@ -38,7 +40,7 @@ class ErrorBag implements \IteratorAggregate, \Countable
      */
     public function __set(string $key, ErrorRow $row)
     {
-        $this->set($key, $row);
+        throw new \RuntimeException(sprintf('Method %s is not allowed.', __METHOD__));
     }
 
     /**
@@ -49,6 +51,25 @@ class ErrorBag implements \IteratorAggregate, \Countable
     public function __isset(string $name): bool
     {
         return $this->has($name);
+    }
+
+    /**
+     * Returns errors as formatted array.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        $array = [];
+        foreach ($this->all() as $errorRow) {
+            $array[] = sprintf('Error(s) on row #%d field %s: %s',
+                $errorRow->getRowNumber(),
+                $errorRow->getField(),
+                implode('; ', $errorRow->getMessages())
+            );
+        }
+
+        return $array;
     }
 
     /**
@@ -72,9 +93,9 @@ class ErrorBag implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @param int $rowNumber
+     * @param int    $rowNumber
      * @param string $field
-     * @param array $messages
+     * @param array  $messages
      */
     public function addRow(int $rowNumber, string $field, array $messages)
     {
@@ -95,26 +116,25 @@ class ErrorBag implements \IteratorAggregate, \Countable
      * Returns an error by name.
      *
      * @param string $key
-     * @param mixed  $default
      *
-     * @return mixed
+     * @return ErrorRow|null
      */
-    public function get(string $key, $default = null)
+    public function get(string $key): ?ErrorRow
     {
-        return array_key_exists($key, $this->errors) ? $this->errors[$key] : $default;
+        return $this->errors[$key] ?? null;
     }
 
     /**
-     * Sets an error by name.
+     * Sets an error.
+     * Note: It proxies to add() method to correctly handle row numbers; It overwrites if row already existed.
      *
-     * @param string   $key
      * @param ErrorRow $row
      *
      * @return self
      */
-    public function set($key, ErrorRow $row): self
+    public function set(ErrorRow $row): self
     {
-        $this->errors[$key] = $row;
+        $this->add($row);
 
         return $this;
     }

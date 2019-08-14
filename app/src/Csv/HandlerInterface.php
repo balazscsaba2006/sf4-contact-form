@@ -2,7 +2,6 @@
 
 namespace App\Csv;
 
-use App\Csv\Result;
 use League\Csv\Reader;
 
 /**

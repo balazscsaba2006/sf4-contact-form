@@ -45,15 +45,39 @@ class UploadControllerTest extends WebTestCase
     }
 
     /**
-     * Tests successfully submitting the upload form.
+     * Tests successfully submitting the upload form with all records valid.
      */
-    public function testSubmitUploadFormSuccessfully(): void
+    public function testSubmitUploadFormSuccessfullyWithAllRecordsValid(): void
     {
         [$client, $crawler] = $this->prepareTest('correct.csv');
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertEquals(1, $crawler->filter('div.alert.alert-success')->count());
         self::assertSelectorTextContains('div.alert.alert-success', 'Nice job! The uploaded file was successfully saved.');
+    }
+
+    /**
+     * Tests successfully submitting the upload form with all records being invalid.
+     */
+    public function testSubmitUploadFormSuccessfullyWithAllRecordsBeingInvalid(): void
+    {
+        [$client, $crawler] = $this->prepareTest('all_records_invalid.csv');
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(1, $crawler->filter('div.alert.alert-danger')->count());
+        self::assertSelectorTextContains('div.alert.alert-danger', 'Whoops. All records are invalid, nothing could be saved.');
+    }
+
+    /**
+     * Tests successfully submitting the upload form with partial valid records.
+     */
+    public function testSubmitUploadFormSuccessfullyWithPartialValidRecords(): void
+    {
+        [$client, $crawler] = $this->prepareTest('partial_valid_records.csv');
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals(1, $crawler->filter('div.alert.alert-warning')->count());
+        self::assertSelectorTextContains('div.alert.alert-warning', 'Successfully saved 2 of 3 records. Check rows: #1');
     }
 
     /**

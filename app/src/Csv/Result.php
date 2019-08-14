@@ -38,9 +38,9 @@ class Result
     }
 
     /**
-     * @param int $rowNumber
+     * @param int    $rowNumber
      * @param string $field
-     * @param array $messages
+     * @param array  $messages
      *
      * @return Result
      */
@@ -73,5 +73,13 @@ class Result
     public function getErrors(): ErrorBag
     {
         return $this->errors;
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrorsAsArray(): array
+    {
+        return $this->errors->toArray();
     }
 }
